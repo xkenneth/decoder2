@@ -3,7 +3,6 @@
 import scipy
 import math
 
-
 #defining the 10 possible codes.
 code0 = ['n','n','w','w','n']
 code1 = ['w','n','n','n','w']
@@ -25,7 +24,7 @@ def value_map( i, j ):
     return i*10+j
 
 
-def pnorm( x, p=2.0 ):
+def pnorm( x, p=2 ):
     # computes the p-norm of x
     # http://en.wikipedia.org/wiki/Norm_%28mathematics%29
     # 
@@ -40,12 +39,11 @@ class I2of5_decode:
     # http://en.wikipedia.org/wiki/Interleaved_2_of_5
     # 
     # 
-    # 
     
     signal_group = []
     value_group = []
     
-    def load_waveforms( self, narrow_waveform, wide_waveform ):
+    def load_shapes( self, narrow_shape, wide_shape ):
         
         self.signal_group = []
         
@@ -56,21 +54,21 @@ class I2of5_decode:
                 for k in range(5):
                     
                     if ( codes[i][k] == 'n' ):
-                        signal = scipy.append( signal, narrow_waveform )
+                        signal = scipy.append( signal, narrow_shape )
                     else:
-                        signal = scipy.append( signal, wide_waveform )
+                        signal = scipy.append( signal, wide_shape )
                     
                     if ( codes[j][k] == 'n' ):
-                        signal = scipy.append( signal, scipy.zeros(len(narrow_waveform)) )
+                        signal = scipy.append( signal, scipy.zeros(len(narrow_shape)) )
                     else:
-                        signal = scipy.append( signal, scipy.zeros(len(wide_waveform)) ) 
+                        signal = scipy.append( signal, scipy.zeros(len(wide_shape)) ) 
                 
                 signal /= pnorm(signal);
                 
-                self.signal_group.append(signal)
+                self.signal_group.append( signal )
                 self.value_group.append( value_map(i,j) )
     
-    def decode( signal_in ):
+    def decode( self, signal_in ):
         
         # return data
         certainty = 0
@@ -81,43 +79,60 @@ class I2of5_decode:
         
         # condition signal_in
         signal_in = scipy.array(signal_in)
-        signal_in = signal_in[0:len(signal_group[0])]
+        signal_in = signal_in[0:len(self.signal_group[0])]
         signal_in /= pnorm(signal_in,p)
-        
         
         # compute signal distances
         distances = []
         
         for k in range(100):
-            distances.append( pnorm(signal_group[k] - signal_in,p) )
+            distances.append( pnorm(self.signal_group[k] - signal_in,p) )
         
-        m = min(distances)
+        #check that there's only one minimum
+        minimum = min(distances)
+        min_count = 0
+        
         for k in range(100):
-            if (distances[k] == m):
-                value = value_group[k]
+            if (distances[k] == minimum ):
+                min_count += 1
         
-        return [value, certainty ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if ( min_count > 1 ):
+            raise Exception("Error: more than one minimum found.")
+        
+        #get value
+        min_index = distances.index( min(distances) )
+        value = self.value_group[ min_index ]
+        
+        # some output for debugging
+        if (True):
+            out = [ (self.value_group[i],distances[i]) for i in range(len(distances)) ]
+        
+            def compare(x,y):
+                return cmp( x[1], y[1] )
+        
+            out.sort(compare)
+        
+            for i in range( len(out) ):
+                print out[i]            
+        
+        #statistical wizardry
+        
+        distances.sort()        
+        minimum = distances[0]
+        distances = [ d - minimum for d in distances ]
+        
+        stdev = scipy.std(distances)
+        
+        print stdev
+        
+        
+        
+        return [value, certainty, distances ]
+        
+        
+        
+        
+        
+        
+        
 

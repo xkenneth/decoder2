@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#ken is a piece of shit 
+
 import pdb
 import math
 import pylab

@@ -49,6 +49,7 @@ class I2of5_decode:
         
         for i in range(10):
             for j in range(10):
+                
                 signal = scipy.array([])
                 
                 for k in range(5):
@@ -67,6 +68,7 @@ class I2of5_decode:
                 
                 self.signal_group.append( signal )
                 self.value_group.append( value_map(i,j) )
+    
     
     def decode( self, signal_in ):
         
@@ -104,35 +106,43 @@ class I2of5_decode:
         value = self.value_group[ min_index ]
         
         # some output for debugging
-        if (True):
-            out = [ (self.value_group[i],distances[i]) for i in range(len(distances)) ]
         
-            def compare(x,y):
-                return cmp( x[1], y[1] )
+        out = [ (self.value_group[i],distances[i]) for i in range(len(distances)) ]
         
-            out.sort(compare)
+        def compare(x,y):
+            return cmp( x[1], y[1] )
         
-            for i in range( len(out) ):
-                print out[i]            
+        out.sort(compare)
+        
+        for i in range( len(out) ):
+            print out[ len(out) -i-1 ]
+        
         
         #statistical wizardry
         
-        distances.sort()        
+        distances.sort()
+        distances = distances[0:20]
+        
         minimum = distances[0]
         distances = [ d - minimum for d in distances ]
         
         stdev = scipy.std(distances)
         
-        print stdev
+        distances = [ d/stdev for d in distances ]
         
+        mean = scipy.mean(distances)
         
+        a = mean
+        b = distances[1]
+        c = distances[2]-distances[1]
+        d = distances[3]-distances[2]
+        
+        print a, b, c, d
+        
+        certainty = ( a/2.5 + b/1.0 )/2
         
         return [value, certainty, distances ]
         
         
         
         
-        
-        
-        
-

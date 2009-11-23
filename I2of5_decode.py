@@ -107,21 +107,22 @@ class I2of5_decode:
         
         # some output for debugging
         
-        out = [ (self.value_group[i],distances[i]) for i in range(len(distances)) ]
+        output_distances = [ (self.value_group[i],distances[i]) for i in range(len(distances)) ]
         
         def compare(x,y):
             return cmp( x[1], y[1] )
         
-        out.sort(compare)
+        output_distances.sort(compare)
         
+        """
         for i in range( len(out) ):
             print out[ len(out) -i-1 ]
-        
+        """
         
         #statistical wizardry
         
         distances.sort()
-        distances = distances[0:20]
+        #distances = distances[0:20]
         
         minimum = distances[0]
         distances = [ d - minimum for d in distances ]
@@ -141,7 +142,7 @@ class I2of5_decode:
         
         certainty = ( a/2.5 + b/1.0 )/2
         
-        return [value, certainty, distances ]
+        return [ value, [a,b,c,d ], distances, output_distances ]
         
         
         

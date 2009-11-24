@@ -1,5 +1,4 @@
 
-
 import scipy
 import math
 
@@ -17,6 +16,7 @@ code9 = ['n','w','n','w','n']
 codes = [code0, code1, code2, code3, code4, code5, code6, code7, code8, code9 ]
 
 def value_map( i, j ):
+    
     # maps from code index to the corresponding value.
     # 0 <= i < 10
     # 0 <= j < 10
@@ -32,7 +32,7 @@ def pnorm( x, p=2 ):
     for k in range(len(x)):
         sum += abs(x[k])**p
     
-    return sum**(1.0/p)
+    return (sum/len(x))**(1.0/p)
 
 class I2of5_decode:
     # decode one code of interleaved 2 of 5,
@@ -138,11 +138,9 @@ class I2of5_decode:
         c = distances[2]-distances[1]
         d = distances[3]-distances[2]
         
-        print a, b, c, d
-        
         certainty = ( a/2.5 + b/1.0 )/2
         
-        return [ value, [a,b,c,d ], distances, output_distances ]
+        return [ value, certainty, [a,b,c,d ], distances, output_distances ]
         
         
         
